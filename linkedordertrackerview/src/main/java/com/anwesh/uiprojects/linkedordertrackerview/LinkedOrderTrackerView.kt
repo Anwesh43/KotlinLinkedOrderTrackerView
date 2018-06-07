@@ -111,7 +111,9 @@ class LinkedOrderTrackerView(ctx : Context) : View (ctx) {
         }
 
         fun draw(canvas : Canvas, paint : Paint) {
-            prev?.draw(canvas, paint)
+            if (!readMode) {
+                prev?.draw(canvas, paint)
+            }
             val w : Float = canvas.width.toFloat()
             val h : Float = canvas.height.toFloat()
             paint.strokeWidth = Math.min(w, h) / 50
@@ -122,7 +124,6 @@ class LinkedOrderTrackerView(ctx : Context) : View (ctx) {
             var scale1 : Float = state.scales[0]
             var scale2 : Float = state.scales[1]
             if (readMode) {
-                paint.color = Color.parseColor("#EEEEEE")
                 scale1 = 1f
                 scale2 = 1f
             }
@@ -142,6 +143,15 @@ class LinkedOrderTrackerView(ctx : Context) : View (ctx) {
             cb()
             return this
         }
+
+        fun drawInReadMode(canvas: Canvas, paint: Paint) {
+            paint.color = Color.parseColor("#EEEEEE")
+            var curr : LOTNode? = this
+            while (curr != null) {
+                curr?.draw(canvas, paint)
+                curr = curr?.next
+            }
+        }
     }
 
     data class LinkedOrderTrack (var i : Int) {
@@ -152,13 +162,13 @@ class LinkedOrderTrackerView(ctx : Context) : View (ctx) {
 
         var readCurr : LOTNode = LOTNode(0, readMode = true)
         fun draw(canvas : Canvas, paint : Paint) {
+            readCurr.drawInReadMode(canvas, paint)
             paint.color = Color.parseColor("#512DA8")
             val w : Float = canvas.width.toFloat()
             val h : Float = canvas.height.toFloat()
             val r : Float = Math.min(w, h)/(LOT_NODES * 5)
             canvas.drawCircle(r, h/2, r, paint)
             curr.draw(canvas, paint)
-            readCurr.draw(canvas, paint)
         }
 
         fun update(stopcb : (Float) -> Unit) {

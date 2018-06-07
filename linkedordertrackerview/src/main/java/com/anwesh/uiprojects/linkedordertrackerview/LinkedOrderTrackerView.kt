@@ -4,6 +4,7 @@ package com.anwesh.uiprojects.linkedordertrackerview
  * Created by anweshmishra on 07/06/18.
  */
 
+import android.app.Activity
 import android.content.Context
 import android.view.View
 import android.view.MotionEvent
@@ -185,6 +186,14 @@ class LinkedOrderTrackerView(ctx : Context) : View (ctx) {
             lot.startUpdating {
                 animator.start()
             }
+        }
+    }
+
+    companion object {
+        fun create(activity : Activity): LinkedOrderTrackerView {
+            val view : LinkedOrderTrackerView = LinkedOrderTrackerView(activity)
+            activity.setContentView(view)
+            return view
         }
     }
 }

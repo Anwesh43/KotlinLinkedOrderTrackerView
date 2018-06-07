@@ -162,4 +162,27 @@ class LinkedOrderTrackerView(ctx : Context) : View (ctx) {
             curr.startUpdating(startcb)
         }
     }
+
+    data class Renderer(var view : LinkedOrderTrackerView) {
+
+        private val animator : Animator = Animator(view)
+
+        private val lot : LinkedOrderTrack = LinkedOrderTrack(0)
+
+        fun render(canvas : Canvas, paint : Paint) {
+            canvas.drawColor(Color.parseColor("#212121"))
+            lot.draw(canvas, paint)
+            animator.animate {
+                lot.update {
+                    animator.stop()
+                }
+            }
+        }
+
+        fun handleTap() {
+            lot.startUpdating {
+                animator.start()
+            }
+        }
+    }
 }

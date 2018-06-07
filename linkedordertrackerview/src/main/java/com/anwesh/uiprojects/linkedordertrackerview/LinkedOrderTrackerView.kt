@@ -9,6 +9,8 @@ import android.view.View
 import android.view.MotionEvent
 import android.graphics.*
 
+val LOT_NODES : Int = 5
+
 class LinkedOrderTrackerView(ctx : Context) : View (ctx) {
 
     private val paint : Paint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -78,6 +80,57 @@ class LinkedOrderTrackerView(ctx : Context) : View (ctx) {
                 animated = false
             }
         }
+    }
 
+    data class LOTNode (var i : Int, val state : State = State()) {
+
+        private var next : LOTNode? = null
+
+        private var prev : LOTNode? = null
+
+        init {
+            addNeighbor()
+        }
+
+        fun addNeighbor() {
+            if (i < LOT_NODES - 1) {
+                next = LOTNode(i +1)
+                next?.prev = this
+            }
+        }
+
+        fun update(stopcb : (Float) -> Unit) {
+            state.update(stopcb)
+        }
+
+        fun startUpdating(startcb : () -> Unit) {
+            state.startUpdating(startcb)
+        }
+
+        fun draw(canvas : Canvas, paint : Paint) {
+            paint.color = Color.parseColor("#512DA8")
+            val w : Float = canvas.width.toFloat()
+            val h : Float = canvas.height.toFloat()
+            paint.strokeWidth = Math.min(w, h) / 50
+            paint.strokeCap = Paint.Cap.ROUND
+            val wGap : Float = w / LOT_NODES
+            canvas.save()
+            canvas.translate(wGap * i, h/2)
+            canvas.drawCircle(wGap, 0f, wGap/10 * state.scales[1], paint)
+            canvas.drawLine(0f, 0f, wGap * state.scales[0], 0f, paint)
+            canvas.restore()
+        }
+
+        fun getNext(dir : Int, cb : () -> Unit) : LOTNode {
+            var curr : LOTNode? = prev
+            if (dir == 1) {
+                curr = next
+            }
+            if (curr != null) {
+                return curr
+            }
+            cb()
+            return this
+        }
     }
 }

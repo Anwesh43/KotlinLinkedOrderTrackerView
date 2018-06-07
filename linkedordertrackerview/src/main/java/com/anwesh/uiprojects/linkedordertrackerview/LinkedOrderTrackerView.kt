@@ -85,7 +85,7 @@ class LinkedOrderTrackerView(ctx : Context) : View (ctx) {
         }
     }
 
-    data class LOTNode (var i : Int, val state : State = State()) {
+    data class LOTNode (var i : Int, val state : State = State(), var readMode : Boolean = false) {
 
         private var next : LOTNode? = null
 
@@ -97,7 +97,7 @@ class LinkedOrderTrackerView(ctx : Context) : View (ctx) {
 
         fun addNeighbor() {
             if (i < LOT_NODES - 1) {
-                next = LOTNode(i +1)
+                next = LOTNode(i = i +1, readMode = readMode)
                 next?.prev = this
             }
         }
@@ -119,8 +119,15 @@ class LinkedOrderTrackerView(ctx : Context) : View (ctx) {
             val wGap : Float = w / LOT_NODES
             canvas.save()
             canvas.translate(wGap * i, h/2)
-            canvas.drawCircle(wGap, 0f, wGap/5 * state.scales[1], paint)
-            canvas.drawLine(0f, 0f, wGap * state.scales[0], 0f, paint)
+            var scale1 : Float = state.scales[0]
+            var scale2 : Float = state.scales[1]
+            if (readMode) {
+                paint.color = Color.parseColor("#EEEEEE")
+                scale1 = 1f
+                scale2 = 1f
+            }
+            canvas.drawCircle(wGap, 0f, wGap/5 * scale2, paint)
+            canvas.drawLine(0f, 0f, wGap * scale1, 0f, paint)
             canvas.restore()
         }
 
@@ -143,6 +150,7 @@ class LinkedOrderTrackerView(ctx : Context) : View (ctx) {
 
         var dir : Int = 1
 
+        var readCurr : LOTNode = LOTNode(0, readMode = true)
         fun draw(canvas : Canvas, paint : Paint) {
             paint.color = Color.parseColor("#512DA8")
             val w : Float = canvas.width.toFloat()
@@ -150,6 +158,7 @@ class LinkedOrderTrackerView(ctx : Context) : View (ctx) {
             val r : Float = Math.min(w, h)/(LOT_NODES * 5)
             canvas.drawCircle(r, h/2, r, paint)
             curr.draw(canvas, paint)
+            readCurr.draw(canvas, paint)
         }
 
         fun update(stopcb : (Float) -> Unit) {

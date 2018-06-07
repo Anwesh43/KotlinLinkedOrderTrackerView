@@ -41,7 +41,7 @@ class LinkedOrderTrackerView(ctx : Context) : View (ctx) {
                 scales[j] = prevScale + dir
                 j += dir.toInt()
                 if (j == scales.size || j == -1) {
-                    scales[j] = prevScale + dir
+                    j -= dir.toInt()
                     dir = 0f
                     prevScale = scales[j]
                     stopcb(prevScale)

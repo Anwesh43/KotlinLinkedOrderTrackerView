@@ -108,7 +108,7 @@ class LinkedOrderTrackerView(ctx : Context) : View (ctx) {
         }
 
         fun draw(canvas : Canvas, paint : Paint) {
-            paint.color = Color.parseColor("#512DA8")
+            prev?.draw(canvas, paint)
             val w : Float = canvas.width.toFloat()
             val h : Float = canvas.height.toFloat()
             paint.strokeWidth = Math.min(w, h) / 50
@@ -116,7 +116,7 @@ class LinkedOrderTrackerView(ctx : Context) : View (ctx) {
             val wGap : Float = w / LOT_NODES
             canvas.save()
             canvas.translate(wGap * i, h/2)
-            canvas.drawCircle(wGap, 0f, wGap/10 * state.scales[1], paint)
+            canvas.drawCircle(wGap, 0f, wGap/5 * state.scales[1], paint)
             canvas.drawLine(0f, 0f, wGap * state.scales[0], 0f, paint)
             canvas.restore()
         }
@@ -131,6 +131,35 @@ class LinkedOrderTrackerView(ctx : Context) : View (ctx) {
             }
             cb()
             return this
+        }
+    }
+
+    data class LinkedOrderTrack (var i : Int) {
+
+        var curr : LOTNode = LOTNode(0)
+
+        var dir : Int = 1
+
+        fun draw(canvas : Canvas, paint : Paint) {
+            paint.color = Color.parseColor("#512DA8")
+            val w : Float = canvas.width.toFloat()
+            val h : Float = canvas.height.toFloat()
+            val r : Float = Math.min(w, h)/(LOT_NODES * 5)
+            canvas.drawCircle(r, h/2, r, paint)
+            curr.draw(canvas, paint)
+        }
+
+        fun update(stopcb : (Float) -> Unit) {
+            curr.update {
+                curr = curr.getNext(dir) {
+                    dir *= -1
+                }
+                stopcb(it)
+            }
+        }
+
+        fun startUpdating(startcb : () -> Unit) {
+            curr.startUpdating(startcb)
         }
     }
 }

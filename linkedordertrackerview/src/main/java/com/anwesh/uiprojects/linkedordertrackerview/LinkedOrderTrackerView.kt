@@ -26,7 +26,7 @@ class LinkedOrderTrackerView(ctx : Context) : View (ctx) {
         return true
     }
 
-    class State(var prevScale : Float = 0f, var dir : Float = 0f, var j : Int = 0) {
+    data class State(var prevScale : Float = 0f, var dir : Float = 0f, var j : Int = 0) {
 
         val scales : Array<Float> = arrayOf(0f, 0f)
 
@@ -50,5 +50,34 @@ class LinkedOrderTrackerView(ctx : Context) : View (ctx) {
                 startcb()
             }
         }
+    }
+
+    data class Animator(var view : View, var animated : Boolean = false) {
+
+        fun animate(cb : () -> Unit) {
+            if (animated) {
+                cb()
+                try {
+                    Thread.sleep(50)
+                    view.invalidate()
+                } catch (ex : Exception) {
+
+                }
+            }
+        }
+
+        fun start() {
+            if (!animated) {
+                animated = true
+                view.postInvalidate()
+            }
+        }
+
+        fun stop() {
+            if (animated) {
+                animated = false
+            }
+        }
+
     }
 }
